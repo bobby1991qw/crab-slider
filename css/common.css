@@ -8,3 +8,7 @@ a{
     color: inherit;
 }
 
+.test{
+    width: 60%;
+    margin: 0 auto;
+}

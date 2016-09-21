@@ -8,8 +8,6 @@ gulp.task('es6', function () {
             presets: ['es2015']
         }))
         .pipe(gulp.dest('./js'));
-
-    gulp.watch('./es6/*.js', ['es6']);
 });
 
 gulp.task('dev', ['es6'], function () {
@@ -21,8 +19,9 @@ gulp.task('dev', ['es6'], function () {
 
     gulp.watch([
         './css/*.css',
-        './js/*.js',
         './index.js',
         './index.html'
     ], browser.reload);
+
+    gulp.watch('./es6/*.js', ['es6', browser.reload]);
 });
