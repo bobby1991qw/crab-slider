@@ -1,14 +1,5 @@
-html,body,ol,ul{
+html,body{
     padding: 0;
     margin: 0;
     list-style: none;
-}
-
-a{
-    color: inherit;
-}
-
-.test{
-    width: 60%;
-    margin: 0 auto;
 }

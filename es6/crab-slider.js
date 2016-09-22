@@ -45,7 +45,7 @@
                     isMobile
                 };
             },
-            addEventListener(context, type, node, cb, ) {
+            addEventListener(context, type, node, cb) {
                 if (context.nodeType !== 1) {
                     throw new Error('未找到事件节点');
                 }
@@ -56,14 +56,14 @@
                     }[type] || type;
                 }
 
-                if (arguments.length = 3) {
+                if (arguments.length === 3) {
                     cb = node;
 
                     context.addEventListener(type, cb.bind(context));
                 } else {
                     context.addEventListener(type, (e) => {
                         if ([].indexOf.call(utils.toArray(context.querySelectorAll(node)), e.target) > -1) {
-                            cb.apply(context, arguments);
+                            cb.apply(context, [e]);
                         }
                     });
                 }
@@ -192,7 +192,8 @@
             move: {
                 start: false,
                 x: 0,
-                y: 0
+                y: 0,
+                scale: false
             },
             init(ele, opts) {
                 if (!ele) {
@@ -227,8 +228,10 @@
                 const box = utils.createElement('div', {
                     className: 'crab-box'
                 });
-                let imgs = utils.toArray(this.root.querySelectorAll('img'));
+                let boxWidth, imgs = utils.toArray(this.root.querySelectorAll('img'));
 
+                this.root.appendChild(box);
+                boxWidth = box.clientWidth;
                 if (!imgs.length) {
                     imgs = this.options.imgs.map((img) => {
                         return utils.createElement('img', {
@@ -238,11 +241,11 @@
                 }
 
                 imgs.forEach((img) => {
+                    img.width = boxWidth;
                     box.appendChild(img);
                 });
 
                 box.style.transform = `translateX(${-this.options.startIndex * 100}%)`
-                this.root.appendChild(box);
                 data.initImgs(imgs);
             },
             bindEvent() {
@@ -266,43 +269,57 @@
                             x: e.touches[0].clientX,
                             y: e.touches[0].clientY,
                         };
-
-                        console.log(this.move);
                     });
 
                     utils.addEventListener(root, 'touchmove', (e) => {
                         const box = this.root.querySelector('.crab-box'),
                             x = e.changedTouches[0].clientX,
-                            distance = x - this.move.x,
-                            disAbs = Math.abs(distance),
-                            dir = distance > 0 ? 1 : -1;
+                            distanceX = x - this.move.x,
+                            disXAbs = Math.abs(distanceX),
+                            dir = distanceX > 0 ? 1 : -1;
 
-                        box.style.transform = `translateX(${dir * (Math.sqrt(disAbs) + disAbs / 30) + this.translateX}%)`;
+                        box.style.transform = `translateX(${dir * (disXAbs / 6) + this.translateX}%)`
+                        // this.move.scale || disXAbs > 30 && (box.style.transform = `translateX(${dir * (Math.sqrt(disXAbs) + disXAbs / 6) + this.translateX}%)`);
                     });
 
                     utils.addEventListener(root, 'touchend', (e) => {
                         const box = this.root.querySelector('.crab-box'),
                             x = e.changedTouches[0].clientX,
-                            distance = x - this.move.x,
-                            changMethod = distance > 0 ? this.prev : this.next;
+                            distanceX = x - this.move.x,
+                            changMethod = distanceX > 0 ? this.prev : this.next;
 
-
-                        console.log(distance);
                         this.move.start = false;
 
-
-                        box.style.transition = 'all .25s ease-in-out';
-                        if ((data.currentIndex !== 0 || distance < 0) && (data.currentIndex !== data.imgs.length - 1 || distance > 0) && Math.abs(distance) > 100) {
+                        box.style.transition = 'all .25s ease';
+                        if (
+                            !this.move.scale &&
+                            (data.currentIndex !== 0 || distanceX < 0) &&
+                            (data.currentIndex !== data.imgs.length - 1 || distanceX > 0) &&
+                            Math.abs(distanceX) > 100
+                        ) {
                             changMethod.call(this);
                         } else {
                             box.style.transform = `translateX(${this.translateX}%)`;
-
                         }
 
                         setTimeout(() => {
                             box.style.transition = 'none';
                         }, 250);
-                    })
+                    });
+
+                    // utils.addEventListener(root, 'touchmove', 'img', (e) => {
+                    //     const y = e.changedTouches[0].clientY,
+                    //         distanceY = y - this.move.y,
+                    //         disYAbs = Math.abs(distanceY);
+
+                    //     disYAbs > 30 && (this.move.scale = true, e.target.style.transform = `scale(${Math.min(1.6, Math.pow(disYAbs - 50, 1 / 12))})`);
+                    // });
+
+                    // utils.addEventListener(root, 'touchend', 'img', (e) => {
+                    //     console.log('img');
+                    //     e.target.style.transform = `scale(1)`;
+                    //     this.move.scale = false;
+                    // });
                 }
             },
             changeImg(i) {

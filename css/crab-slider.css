@@ -13,6 +13,9 @@
 .crab-slider img{
     display: inline-block;
     width: 100%;
+    -webkit-transition: all .25s ease-out;
+    -o-transition: all .25s ease-out;
+    transition: all .25s ease-out;
 }
 
 .crab-slider .crab-pagination {
@@ -101,4 +104,9 @@
     -webkit-transition: all .25s ease;
     -o-transition: all .25s ease;
     transition: all .25s ease;
+    -webkit-will-change: transform;
+    -moz-will-change: transform;
+    -ms-will-change: transform;
+    -o-will-change: transform;
+    will-change: transform; 
 }
