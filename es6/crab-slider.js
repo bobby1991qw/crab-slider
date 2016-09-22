@@ -258,6 +258,9 @@
                     const root = this.root;
 
                     utils.addEventListener(root, 'touchstart', (e) => {
+                        const box = this.root.querySelector('.crab-box');
+                        this.translateX = box.style.transform.match(/-?\d+/)[0] - 0;
+
                         this.move = {
                             start: true,
                             x: e.touches[0].clientX,
@@ -268,18 +271,37 @@
                     });
 
                     utils.addEventListener(root, 'touchmove', (e) => {
+                        const box = this.root.querySelector('.crab-box'),
+                            x = e.changedTouches[0].clientX,
+                            distance = x - this.move.x,
+                            disAbs = Math.abs(distance),
+                            dir = distance > 0 ? 1 : -1;
+
+                        box.style.transform = `translateX(${dir * (Math.sqrt(disAbs) + disAbs / 30) + this.translateX}%)`;
                     });
 
                     utils.addEventListener(root, 'touchend', (e) => {
-                        const x = e.changedTouches[0].clientX,
+                        const box = this.root.querySelector('.crab-box'),
+                            x = e.changedTouches[0].clientX,
                             distance = x - this.move.x,
                             changMethod = distance > 0 ? this.prev : this.next;
 
+
+                        console.log(distance);
                         this.move.start = false;
 
-                        if (Math.abs(distance) > 50) {
+
+                        box.style.transition = 'all .25s ease-in-out';
+                        if ((data.currentIndex !== 0 || distance < 0) && (data.currentIndex !== data.imgs.length - 1 || distance > 0) && Math.abs(distance) > 100) {
                             changMethod.call(this);
+                        } else {
+                            box.style.transform = `translateX(${this.translateX}%)`;
+
                         }
+
+                        setTimeout(() => {
+                            box.style.transition = 'none';
+                        }, 250);
                     })
                 }
             },
